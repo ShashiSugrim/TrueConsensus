@@ -56,6 +56,7 @@ export class CurrentVotesService {
    * - Only contains digits and commas
    * - No trailing comma
    * - All elements are numbers
+   * - No duplicate numbers
    */
   private validateRankingFormat(ranking: string): void {
     // Check if the ranking is empty
@@ -72,6 +73,13 @@ export class CurrentVotesService {
     const validFormatRegex = /^[0-9]+(,[0-9]+)*$/;
     if (!validFormatRegex.test(ranking)) {
       throw new BadRequestException('Ranking must be comma-separated numbers (e.g., "1,2,3,5,6")');
+    }
+
+    // Check for duplicate numbers in ranking
+    const numbers = ranking.split(',').map(num => parseInt(num));
+    const uniqueNumbers = new Set(numbers);
+    if (uniqueNumbers.size !== numbers.length) {
+      throw new BadRequestException('Ranking cannot contain duplicate numbers');
     }
   }
 
