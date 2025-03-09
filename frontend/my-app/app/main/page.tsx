@@ -90,15 +90,10 @@ export default function Main() {
                     title: "CUNY",
                     color: "blue"
                 },
-                {
-                    id: 3,
-                    question: "What are the top 10 foods?",
-                    title: "Food",
-                    color: "red"
-                },
+            
                 {
                     id: 4,
-                    question: "What are the top 10 energy drinks?",
+                    question: "What are the top 10 memes?",
                     title: "Memes",
                     color: "green"
                 }
