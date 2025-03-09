@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Header from "../../components/header";
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 
 interface VotingItem {
   id: number;
@@ -107,14 +107,12 @@ export default function VotePage({}) {
           );
           
           console.log("Vote submitted successfully:", response.data);
-          alert("Vote submitted successfully!");
+          redirect('/vote');
         } else {
           console.error("Some players couldn't be mapped to IDs");
-          alert("Error submitting vote: Invalid player data");
         }
       } catch (error) {
         console.error("Error posting voting list:", error);
-        alert("Error submitting vote. Please try again.");
       }
     };
 

@@ -27,6 +27,7 @@ export default function Signup() {
             
             localStorage.setItem('firebaseIdToken', idToken);
             localStorage.setItem('userId', userCredential.user.uid);
+            localStorage.setItem('firstName', firstName);
             
             console.log('ID Token:', idToken);
             

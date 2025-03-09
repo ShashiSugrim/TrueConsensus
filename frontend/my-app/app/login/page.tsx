@@ -5,6 +5,7 @@ import { auth } from '../../firebase';
 import Header from '../../components/header';
 import { useRouter } from 'next/navigation';
 import { Router } from 'next/router';
+
 export default function Login() {
     const router = useRouter();
     const [email, setEmail] = useState('');
@@ -21,11 +22,10 @@ export default function Login() {
             
             localStorage.setItem('firebaseIdToken', idToken);
             localStorage.setItem('userId', userCredential.user.uid);
-            localStorage.setItem('firebaseToken', idToken)
+            localStorage.setItem('firebaseToken', idToken);
             console.log('ID Token:', idToken);
             console.log('User ID:', userCredential.user.uid);
     
-        
             router.push('/main');
         } catch (error) {
             setError((error as Error).message);
