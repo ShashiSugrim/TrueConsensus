@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Header from "../../components/header";
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 
 interface VotingItem {
   id: number;
@@ -26,32 +26,18 @@ export default function VotePage({}) {
     const getVotingList = async () => {
       const voteList = "https://tcbackend.backendboosterbeast.com/voting-elements/voting_list/";
       const voteSet = id;
+
       const url = voteList + voteSet;
 
       try {
-        // Get backend data
         let response;
-        await axios.get(url)
+        axios.get(url)
           .then(res => {
             response = res.data;
-            
-            // Get localStorage data
-            const localElements = JSON.parse(localStorage.getItem('votingElements') || '[]');
-            const localVotingElements = localElements.filter(
-              (elem: any) => elem.voting_id.toString() === id
-            );
-            
-            // Combine backend and localStorage data
-            const combinedData = [...response, ...localVotingElements];
-            setVotingData(combinedData);
+            console.log(response);
+            setVotingData(response);
           })
           .catch(error => {
-            // If backend fails, try localStorage only
-            const localElements = JSON.parse(localStorage.getItem('votingElements') || '[]');
-            const localVotingElements = localElements.filter(
-              (elem: any) => elem.voting_id.toString() === id
-            );
-            setVotingData(localVotingElements);
             console.error(error);
           });
       } catch (error) {
@@ -60,7 +46,7 @@ export default function VotePage({}) {
     };
 
     getVotingList();
-  }, [id]);
+  }, []);
 
   const handleDragStart = (event: React.DragEvent, player: string) => {
     event.dataTransfer.setData("player", player);
@@ -121,14 +107,12 @@ export default function VotePage({}) {
           );
           
           console.log("Vote submitted successfully:", response.data);
-          alert("Vote submitted successfully!");
+          redirect('/vote');
         } else {
           console.error("Some players couldn't be mapped to IDs");
-          alert("Error submitting vote: Invalid player data");
         }
       } catch (error) {
         console.error("Error posting voting list:", error);
-        alert("Error submitting vote. Please try again.");
       }
     };
 
