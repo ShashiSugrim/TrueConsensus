@@ -1,15 +1,17 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import axios from "axios";
 import Header from "../../components/header";
-import { redirect, useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams, useRouter } from 'next/navigation';
 
 interface VotingItem {
   id: number;
   item: string;
 }
 
-export default function VotePage({}) {
+// Create a separate component that uses the search params
+function VoteContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const question = searchParams.get('question');
@@ -17,6 +19,7 @@ export default function VotePage({}) {
   const [votingData, setVotingData] = useState<VotingItem[]>([]);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const isInTopPlayers = (itemName: string) => {
     return topPlayers.includes(itemName);
@@ -46,7 +49,7 @@ export default function VotePage({}) {
     };
 
     getVotingList();
-  }, []);
+  }, [id]);
 
   const handleDragStart = (event: React.DragEvent, player: string) => {
     event.dataTransfer.setData("player", player);
@@ -78,8 +81,6 @@ export default function VotePage({}) {
 
   function Push() {
     const pushData = async () => {
-      const id = searchParams.get('id');
-      
       try {
         let token = localStorage.getItem('firebaseToken');
         
@@ -96,7 +97,7 @@ export default function VotePage({}) {
             `https://tcbackend.backendboosterbeast.com/current-votes`,
             {
               ranking: playerIds.toString(),
-              voting_id: parseInt(id as any)
+              voting_id: parseInt(id as string)
             },
             {
               headers: {
@@ -107,7 +108,7 @@ export default function VotePage({}) {
           );
           
           console.log("Vote submitted successfully:", response.data);
-          redirect('/vote');
+          setShowSuccessPopup(true); // Show the success popup instead of redirecting
         } else {
           console.error("Some players couldn't be mapped to IDs");
         }
@@ -118,6 +119,12 @@ export default function VotePage({}) {
 
     pushData();
   }
+
+  // Function to handle closing the popup and redirecting
+  const handlePopupClose = () => {
+    setShowSuccessPopup(false);
+    router.push('/vote');
+  };
 
   const onDragStartTopPlayers = (event: React.DragEvent, index: number) => {
     dragItem.current = index;
@@ -148,6 +155,23 @@ export default function VotePage({}) {
       <div className="text-center pt-30">
         <h1 className="text-4xl">{question}</h1>
       </div>
+      
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">Success!</h2>
+            <p className="mb-6">Your vote has been submitted successfully.</p>
+            <button 
+              onClick={handlePopupClose}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="vote-page">
         <div className="left-side" onDrop={handleDrop} onDragOver={handleDragOver}>
           <h2 className="top-players-header">Top 10 Items</h2>
@@ -201,5 +225,26 @@ export default function VotePage({}) {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function LoadingVote() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl">Loading vote...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main page component using Suspense
+export default function VotePage() {
+  return (
+    <Suspense fallback={<LoadingVote />}>
+      <VoteContent />
+    </Suspense>
   );
 }
