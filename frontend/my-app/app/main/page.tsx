@@ -106,13 +106,13 @@ export default function Main() {
     }, []);
   
     return (
-        <div className="w-full">
+        <div className="w-full text-white">
             <Header />
             <section className="flex min-h-screen items-center justify-center flex-col">
                 <p className="text-4xl sm:text-6xl font-bold pb-8 text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.15)]">
                     Voting Made Better
                 </p>
-                <p className="text-xl sm:text-3xl pb-20 m-5 text-gray-200 font-light tracking-wide text-center max-w-3xl leading-relaxed">
+                <p className="text-xl sm:text-3xl pb-20 m-5 text-white font-light tracking-wide text-center max-w-3xl leading-relaxed">
                     Your Voice, Your Choice — Powered by Transparent Algorithms
                 </p>
                 <div className='flex sm:gap-6'>
@@ -120,6 +120,7 @@ export default function Main() {
                         style={box} 
                         onClick={scrollToCategories} 
                         whileHover={{ scale: 1.2 }}
+                        className="text-white"
                     >
                         View Categories
                     </motion.button>
@@ -134,7 +135,7 @@ export default function Main() {
                     {/* <h2 className="text-3xl font-bold text-white">Voting Categories</h2> */}
                     <button 
                         onClick={() => router.push('/create-vote')}
-                        className="bg-green-500/50 hover:bg-green-500/70 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 backdrop-blur-sm border border-white/10 flex items-center gap-2"
+                        className="bg-green-500/50 hover:bg-green-500/80 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 backdrop-blur-sm border border-white/20 flex items-center gap-2"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

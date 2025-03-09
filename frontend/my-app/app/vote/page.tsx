@@ -1,16 +1,17 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import axios from "axios";
 import Header from "../../components/header";
 import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation'; // Add this import
+import { useRouter } from 'next/navigation';
 
 interface VotingItem {
   id: number;
   item: string;
 }
 
-export default function VotePage({}) {
+// Create a client component that uses searchParams
+function VoteContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const question = searchParams.get('question');
@@ -18,7 +19,7 @@ export default function VotePage({}) {
   const [votingData, setVotingData] = useState<VotingItem[]>([]);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
-  const router = useRouter(); // Add this line
+  const router = useRouter();
 
   const isInTopPlayers = (itemName: string) => {
     return topPlayers.includes(itemName);
@@ -94,8 +95,6 @@ export default function VotePage({}) {
 
   function Push() {
     const pushData = async () => {
-      const id = searchParams.get('id');
-      
       try {
         let token = localStorage.getItem('firebaseToken');
         
@@ -112,7 +111,7 @@ export default function VotePage({}) {
             `https://tcbackend.backendboosterbeast.com/current-votes`,
             {
               ranking: playerIds.toString(),
-              voting_id: parseInt(id as any)
+              voting_id: parseInt(id as string)
             },
             {
               headers: {
@@ -162,7 +161,7 @@ export default function VotePage({}) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen text-white">
       <Header />
       <div className="text-center pt-30">
         <h1 className="text-4xl">{question}</h1>
@@ -220,5 +219,26 @@ export default function VotePage({}) {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading component to show while content is loading
+function LoadingVote() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <div className="text-center pt-30">
+        <h1 className="text-4xl">Loading vote page...</h1>
+      </div>
+    </div>
+  );
+}
+
+// Main page component that wraps the content with Suspense
+export default function VotePage() {
+  return (
+    <Suspense fallback={<LoadingVote />}>
+      <VoteContent />
+    </Suspense>
   );
 }
