@@ -83,6 +83,27 @@ export class CurrentVotesService {
     }
   }
 
+  /**
+   * Checks if a vote exists for the specified user and voting list
+   * @param votingId The ID of the voting list
+   * @param userId The ID of the user
+   * @returns The vote object if it exists, or false otherwise
+   */
+  async checkUserVoteExists(votingId: number, userId: string): Promise<CurrentVote | false> {
+    const vote = await this.currentVoteRepository.findOne({
+      where: {
+        userId: userId,
+        votingId: votingId
+      }
+    });
+    
+    if (vote) {
+      return vote;
+    }
+    
+    return false;
+  }
+
   async findAll(): Promise<CurrentVote[]> {
     return this.currentVoteRepository.find({
       relations: ['user', 'votingList']

@@ -1,7 +1,7 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CurrentVotesService } from '../current_votes/current_votes.service';
 import { CurrentVote } from 'src/current_votes/entities/current_vote.entity';
-import { testVotes } from './testData';
+
 @Injectable()
 export class AlgorithmService {
   constructor(
@@ -12,7 +12,7 @@ export class AlgorithmService {
     console.log("consensus algo has been run! for this votingId: ", votingId);
     // Get all votes for the specified voting ID
     let votes = await this.currentVotesService.findByVotingId(votingId);
-    // console.log("algorithm.service.ts: actual votes from DB: ", votes);
+    console.log("algorithm.service.ts: actual votes from DB: ", votes.length);
     
     // // Add test data if we have few or no votes (for development/testing)
     // if (!votes || votes.length < 3) {
@@ -47,37 +47,48 @@ export class AlgorithmService {
       return "";
     }
     
-    // Prepare votes for the Condorcet algorithm
-    // Each vote needs to be converted from "2,1" format to array of indices
-    const processedVotes = votes
-      .filter(vote => vote.ranking && vote.ranking.trim())
-      .map(vote => {
-        const ranking = vote.ranking.split(',');
-        // Map each candidate to its index in the candidates array
-        return ranking.map(candidate => candidates.indexOf(candidate));
-      });
-    
     // Run the Condorcet algorithm
-    const finalRanking = this.runCondorcet(candidates, processedVotes);
+    const finalRanking = this.runCondorcet(candidates, votes);
     
     // Convert the final ranking back to a string like "2,3,1"
     return finalRanking.join(',');
   }
 
-  private runCondorcet(candidates: string[], votes: number[][]): string[] {
-    if (candidates.length < 2 || candidates.length > 10) {
-      throw new Error('Number of candidates must be between 2 and 10.');
+  private runCondorcet(candidates: string[], votes: CurrentVote[]): string[] {
+    if (candidates.length < 2) {
+      return candidates; // If only one candidate, return it
+    }
+    if (candidates.length > 10) {
+      console.warn('Large number of candidates detected:', candidates.length);
     }
   
     // Build pairwise preference matrix
+    // [i][j] represents how many voters prefer candidate i over j
     const pairwise = Array.from({ length: candidates.length }, () =>
       Array(candidates.length).fill(0)
     );
   
-    votes.forEach(ranking => {
+    votes.forEach(vote => {
+      if (!vote.ranking || !vote.ranking.trim()) return;
+      
+      const ranking = vote.ranking.split(',');
+      
+      // For each pair of candidates, count preferences
       for (let i = 0; i < ranking.length; i++) {
+        const candidateI = ranking[i];
+        const indexI = candidates.indexOf(candidateI);
+        
+        if (indexI === -1) continue; // Skip if candidate not found
+        
+        // For all candidates after candidateI in the ranking (less preferred)
         for (let j = i + 1; j < ranking.length; j++) {
-          pairwise[ranking[i]][ranking[j]] += 1;
+          const candidateJ = ranking[j];
+          const indexJ = candidates.indexOf(candidateJ);
+          
+          if (indexJ === -1) continue;
+          
+          // Voter prefers candidateI (at position i) over candidateJ (at position j)
+          pairwise[indexI][indexJ]++;
         }
       }
     });
@@ -88,6 +99,7 @@ export class AlgorithmService {
       loser: number;
       margin: number;
     }
+    
     const edges: Edge[] = [];
     for (let i = 0; i < candidates.length; i++) {
       for (let j = 0; j < candidates.length; j++) {
@@ -125,18 +137,21 @@ export class AlgorithmService {
       }
     });
   
-    // Determine final order based on inbound edges
+    // Count outbound edges (not inbound) to determine rank
+    // More outbound edges means higher ranking
     const rankingScores = candidates.map((_, idx) => {
-      let inboundEdges = 0;
-      for (let x = 0; x < candidates.length; x++) {
-        if (locked[x][idx]) inboundEdges++;
+      let outboundEdges = 0;
+      for (let j = 0; j < candidates.length; j++) {
+        if (locked[idx][j]) outboundEdges++;
       }
-      return { candidate: idx, score: -inboundEdges };
+      return { candidate: idx, score: outboundEdges };
     });
   
+    // Sort by outbound edges (descending)
     rankingScores.sort((a, b) => b.score - a.score);
     
     // Return the final ranking
-    return rankingScores.map(r => candidates[r.candidate]);
+    let top10 = rankingScores.map(r => candidates[r.candidate]).slice(0, 10);
+    return top10;
   }
 }

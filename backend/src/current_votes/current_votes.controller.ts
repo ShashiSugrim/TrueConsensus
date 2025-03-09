@@ -19,6 +19,13 @@ export class CurrentVotesController {
     return this.currentVotesService.findAll();
   }
 
+  @Get('userVoted/:votingId')
+  @UseGuards(FirebaseAuthGuard)
+  async userVoted(@Req() req, @Param('votingId') votingId: number) {
+    return this.currentVotesService.checkUserVoteExists(votingId, req.user.uid);
+  }
+
+
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.currentVotesService.findByVotingId(+id);
