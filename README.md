@@ -15,6 +15,14 @@ Our mission is clear: **restore trust and clarity to the voting process**. We bu
 ![image](https://github.com/user-attachments/assets/3fb0b869-0849-4746-b5a0-3503fc1cbed6) 
 ![ConsensusVote drawio](https://github.com/user-attachments/assets/35a583ac-cd9b-4910-8d31-5f74f16bfa0f)
 
+## Images:
+Main Page:
+![image](https://github.com/user-attachments/assets/274e28f7-98de-4fc9-8c41-f59d9df3e9a9)
+Rankings:
+![image](https://github.com/user-attachments/assets/d36ed1a8-e583-42fa-bf3a-7b28fed33354)
+Voting Page
+![image](https://github.com/user-attachments/assets/ff41c3e3-ad32-41b9-8d7d-e1ceb0e66902)
+
 
 ## Challenges and Accomplishments 🏆
 One of our toughest challenges was ensuring that every authenticated user could vote only once, maintaining the integrity of our system. Crafting a transparent algorithm using the Condorcet voting method demanded innovative thinking and rigorous planning. The **Condorcet method** is a voting system that identifies the candidate who would win a one-on-one election against each of the other candidates. This method ensures that the most broadly preferred candidate wins, rather than just the one with the most votes. Despite these hurdles, we’re proud to have built a platform that invites community collaboration and empowers users to redefine how voting should work.
