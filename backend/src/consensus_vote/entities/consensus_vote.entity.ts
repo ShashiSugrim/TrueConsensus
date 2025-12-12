@@ -3,8 +3,8 @@ import { VotingList } from '../../voting_list/entities/voting_list.entity';
 
 @Entity('consensus_vote')
 export class ConsensusVote {
-  @PrimaryColumn()
-  votingId: number;
+  @PrimaryColumn({ type: 'bigint' })
+  votingId: string;
 
   @CreateDateColumn({ name: 'last_updated_time', default: () => 'CURRENT_TIMESTAMP' })
   lastUpdatedTime: Date;

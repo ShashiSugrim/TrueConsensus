@@ -6,8 +6,8 @@ export class VotingElement {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  voting_id: number;
+  @Column({ type: 'bigint' })
+  voting_id: string;
 
   @Column()
   item: string;

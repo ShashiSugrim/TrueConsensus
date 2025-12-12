@@ -89,7 +89,7 @@ export class CurrentVotesService {
    * @param userId The ID of the user
    * @returns The vote object if it exists, or false otherwise
    */
-  async checkUserVoteExists(votingId: number, userId: string): Promise<CurrentVote | false> {
+  async checkUserVoteExists(votingId: string, userId: string): Promise<CurrentVote | false> {
     const vote = await this.currentVoteRepository.findOne({
       where: {
         userId: userId,
@@ -123,7 +123,7 @@ export class CurrentVotesService {
     return vote;
   }
 
-  async findByVotingId(votingId: number): Promise<CurrentVote[]> {
+  async findByVotingId(votingId: string): Promise<CurrentVote[]> {
     return this.currentVoteRepository.find({
       where: { votingId }
     });

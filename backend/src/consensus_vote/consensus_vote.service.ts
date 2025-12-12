@@ -19,11 +19,12 @@ export class ConsensusVoteService {
 
   async create(createConsensusVoteDto: CreateConsensusVoteDto): Promise<ConsensusVote> {
     // Get the consensus calculation from algoService
-    const calculatedConsensus = await this.algoService.calculateConsensus(+createConsensusVoteDto.votingId);
+    const votingIdStr = String(createConsensusVoteDto.votingId);
+    const calculatedConsensus = await this.algoService.calculateConsensus(votingIdStr);
     
     // Check if a consensus vote already exists for this votingId
     const existingVote = await this.consensusVoteRepository.findOne({
-      where: { votingId: +createConsensusVoteDto.votingId }
+      where: { votingId: votingIdStr }
     });
   
     if (existingVote) {
@@ -33,7 +34,7 @@ export class ConsensusVoteService {
     } else {
       // Create a new entity with the calculated consensus value
       const newConsensusVote = this.consensusVoteRepository.create({
-        ...createConsensusVoteDto,
+        votingId: votingIdStr,
         calculatedConsensus: calculatedConsensus
       });
       
@@ -48,11 +49,12 @@ export class ConsensusVoteService {
     });
   }
 
-  async findOne(votingId: number): Promise<any> {
-    await this.create({ votingId: votingId });
+  async findOne(votingId: string | number): Promise<any> {
+    const votingIdStr = String(votingId);
+    await this.create({ votingId: votingIdStr });
 
     const consensusVote = await this.consensusVoteRepository.findOne({
-      where: { votingId },
+      where: { votingId: votingIdStr },
       relations: ['voting'],
     });
 
@@ -72,9 +74,14 @@ export class ConsensusVoteService {
     };
     
     // Check if calculatedConsensus exists and is not empty
-    if (result.calculatedConsensus) {
+    if (result.calculatedConsensus && result.calculatedConsensus.trim() !== '') {
       // Get the IDs from the calculatedConsensus
-      const ids = result.calculatedConsensus.split(',');
+      const ids = result.calculatedConsensus.split(',').filter(id => id.trim() !== '');
+      
+      // Only process if we have valid IDs
+      if (ids.length === 0) {
+        return result;
+      }
       
       // Get all voting elements for this voting ID
       const votingElements = await this.votingElementsService.findByVotingId(result.votingId);
@@ -98,8 +105,8 @@ export class ConsensusVoteService {
     return result;
   }
 
-  async update(votingId: number, updateConsensusVoteDto: UpdateConsensusVoteDto): Promise<ConsensusVote> {
-    const consensusVote = await this.findOne(votingId);
+  async update(votingId: string | number, updateConsensusVoteDto: UpdateConsensusVoteDto): Promise<ConsensusVote> {
+    const consensusVote = await this.findOne(String(votingId));
     
     // Update the entity with new values
     Object.assign(consensusVote, updateConsensusVoteDto);
@@ -108,8 +115,8 @@ export class ConsensusVoteService {
     return await this.consensusVoteRepository.save(consensusVote);
   }
 
-  async remove(votingId: number): Promise<void> {
-    const result = await this.consensusVoteRepository.delete(votingId);
+  async remove(votingId: string | number): Promise<void> {
+    const result = await this.consensusVoteRepository.delete(String(votingId));
     
     if (result.affected === 0) {
       throw new NotFoundException(`Consensus vote with voting ID ${votingId} not found`);

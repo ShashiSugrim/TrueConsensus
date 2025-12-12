@@ -1,15 +1,12 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateCurrentVoteDto {
   @IsNotEmpty()
-  @IsString()
-  user_id: string;
+  @Transform(({ value }) => String(value))
+  voting_id: string;
 
   @IsNotEmpty()
-  @IsInt()
-  voting_id: number;
-
-  @IsOptional()
   @IsString()
-  ranking?: string;
+  ranking: string;
 }

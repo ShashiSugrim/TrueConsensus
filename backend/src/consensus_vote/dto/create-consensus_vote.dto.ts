@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateConsensusVoteDto {
   @IsNotEmpty()
-  @IsNumber()
-  votingId: number;
+  @Transform(({ value }) => String(value))
+  votingId: string;
 
   @IsOptional()
   @IsString()

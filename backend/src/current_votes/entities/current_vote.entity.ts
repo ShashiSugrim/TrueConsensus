@@ -10,8 +10,8 @@ export class CurrentVote {
   @Column({ name: 'user_id' })
   userId: string;
 
-  @Column({ name: 'voting_id' })
-  votingId: number;
+  @Column({ name: 'voting_id', type: 'bigint' })
+  votingId: string;
 
   @Column({ type: 'text', nullable: true })
   ranking: string;

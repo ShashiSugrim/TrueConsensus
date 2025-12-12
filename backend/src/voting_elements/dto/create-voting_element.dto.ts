@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateVotingElementDto {
   @IsNotEmpty()
-  @IsNumber()
-  voting_id: number;
+  @Transform(({ value }) => String(value))
+  voting_id: string;
 
   @IsNotEmpty()
   @IsString()

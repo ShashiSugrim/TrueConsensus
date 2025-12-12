@@ -8,7 +8,7 @@ export class AlgorithmService {
     private readonly currentVotesService: CurrentVotesService
   ) {}
 
-  async calculateConsensus(votingId: number): Promise<string> {
+  async calculateConsensus(votingId: string): Promise<string> {
     console.log("consensus algo has been run! for this votingId: ", votingId);
     // Get all votes for the specified voting ID
     let votes = await this.currentVotesService.findByVotingId(votingId);
@@ -121,10 +121,13 @@ export class AlgorithmService {
       Array(candidates.length).fill(false)
     );
   
-    const createsCycle = (winner: number, loser: number): boolean => {
+    const createsCycle = (winner: number, loser: number, visited: Set<number> = new Set()): boolean => {
       if (winner === loser) return true;
+      if (visited.has(loser)) return false; // Prevent infinite loops
+      visited.add(loser);
+      
       for (let k = 0; k < candidates.length; k++) {
-        if (locked[loser][k] && createsCycle(winner, k)) {
+        if (locked[loser][k] && createsCycle(winner, k, visited)) {
           return true;
         }
       }
@@ -132,7 +135,7 @@ export class AlgorithmService {
     };
   
     edges.forEach(edge => {
-      if (!createsCycle(edge.winner, edge.loser)) {
+      if (!createsCycle(edge.winner, edge.loser, new Set())) {
         locked[edge.winner][edge.loser] = true;
       }
     });

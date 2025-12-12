@@ -24,22 +24,22 @@ export class ConsensusVoteController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id') id: string) {
     return this.consensusVoteService.findOne(id);
   }
 
   @Get('voting-elements/:votingId')
   async getVotingElements(@Param('votingId') votingId: string) {
-    return this.votingElementsService.findByVotingId(+votingId);
+    return this.votingElementsService.findByVotingId(votingId);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateConsensusVoteDto: UpdateConsensusVoteDto) {
-    return this.consensusVoteService.update(+id, updateConsensusVoteDto);
+    return this.consensusVoteService.update(id, updateConsensusVoteDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.consensusVoteService.remove(+id);
+    return this.consensusVoteService.remove(id);
   }
 }

@@ -21,14 +21,14 @@ export class CurrentVotesController {
 
   @Get('userVoted/:votingId')
   @UseGuards(JwtAuthGuard)
-  async userVoted(@Req() req, @Param('votingId') votingId: number) {
+  async userVoted(@Req() req, @Param('votingId') votingId: string) {
     return this.currentVotesService.checkUserVoteExists(votingId, req.user.userId);
   }
 
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.currentVotesService.findByVotingId(+id);
+  findOne(@Param('id') id: string) {
+    return this.currentVotesService.findByVotingId(id);
   }
 
   @Patch(':id')

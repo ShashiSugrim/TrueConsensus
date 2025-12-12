@@ -25,7 +25,7 @@ export class VotingListService {
     return await this.votingListRepository.find();
   }
 
-  async findOne(voting_id: number): Promise<VotingList> {
+  async findOne(voting_id: string): Promise<VotingList> {
     const votingList = await this.votingListRepository.findOne({
       where: { voting_id },
     });
@@ -37,7 +37,7 @@ export class VotingListService {
     return votingList;
   }
 
-  async update(id: number, updateVotingListDto: UpdateVotingListDto): Promise<VotingList> {
+  async update(id: string, updateVotingListDto: UpdateVotingListDto): Promise<VotingList> {
     const votingList = await this.findOne(id);
     
     // Update properties
@@ -52,7 +52,7 @@ export class VotingListService {
     return await this.votingListRepository.save(votingList);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const result = await this.votingListRepository.delete(id);
     
     if (result.affected === 0) {

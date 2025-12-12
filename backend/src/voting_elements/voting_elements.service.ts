@@ -62,18 +62,17 @@ export class VotingElementsService {
         acc[dto.voting_id].push(dto);
         return acc;
       },
-      {} as Record<number, CreateVotingElementDto[]>,
+      {} as Record<string, CreateVotingElementDto[]>,
     );
 
     const results: VotingElement[] = [];
 
     // Process each voting_id group
     for (const votingId of Object.keys(dtosByVotingId)) {
-      const numericVotingId = Number(votingId);
-      const dtos = dtosByVotingId[numericVotingId];
+      const dtos = dtosByVotingId[votingId];
 
       // Get existing elements for this voting_id
-      const existingElements = await this.findByVotingId(numericVotingId);
+      const existingElements = await this.findByVotingId(votingId);
       const existingStandardized = existingElements.map((el) =>
         this.standardizeText(el.item),
       );
@@ -133,7 +132,7 @@ export class VotingElementsService {
     return votingElement;
   }
 
-  async findOne(voting_id: number, item: string): Promise<VotingElement> {
+  async findOne(voting_id: string, item: string): Promise<VotingElement> {
     const votingElement = await this.votingElementRepository.findOne({
       where: { voting_id, item },
       relations: ['votingList'],
@@ -149,7 +148,7 @@ export class VotingElementsService {
   }
 
   async update(
-    voting_id: number,
+    voting_id: string,
     item: string,
     updateVotingElementDto: UpdateVotingElementDto,
   ): Promise<VotingElement> {
@@ -173,7 +172,7 @@ export class VotingElementsService {
     return await this.votingElementRepository.save(votingElement);
   }
 
-  async remove(voting_id: number, item: string): Promise<void> {
+  async remove(voting_id: string, item: string): Promise<void> {
     const votingElement = await this.findOne(voting_id, item);
     await this.votingElementRepository.remove(votingElement);
   }
@@ -183,14 +182,14 @@ export class VotingElementsService {
     await this.votingElementRepository.remove(votingElement);
   }
 
-  async findByVotingId(voting_id: number): Promise<VotingElement[]> {
+  async findByVotingId(voting_id: string): Promise<VotingElement[]> {
     return await this.votingElementRepository.find({
       where: { voting_id },
       order: { item: 'ASC' },
     });
   }
 
-  async countByVotingId(voting_id: number): Promise<number> {
+  async countByVotingId(voting_id: string): Promise<number> {
     return await this.votingElementRepository.count({
       where: { voting_id },
     });

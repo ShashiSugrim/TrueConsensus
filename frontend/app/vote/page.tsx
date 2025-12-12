@@ -4,6 +4,7 @@ import axios from "axios";
 import Header from "../../components/header";
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '../../utils/auth';
 
 interface VotingItem {
   id: number;
@@ -27,38 +28,28 @@ function VoteContent() {
 
   useEffect(() => {
     const getVotingList = async () => {
-      const voteList = "https://tcbackend.backendboosterbeast.com/voting-elements/voting_list/";
-      const voteSet = id;
-      const url = voteList + voteSet;
+      if (!id) return;
+      
+      const url = `${API_BASE_URL}/voting-elements/voting_list/${id}`;
+
+      // Get localStorage data
+      const localElements = JSON.parse(localStorage.getItem('votingElements') || '[]');
+      const localVotingElements = localElements.filter(
+        (elem: any) => elem.voting_id.toString() === id
+      );
 
       try {
         // Get backend data
-        let response;
-        await axios.get(url)
-          .then(res => {
-            response = res.data;
-            
-            // Get localStorage data
-            const localElements = JSON.parse(localStorage.getItem('votingElements') || '[]');
-            const localVotingElements = localElements.filter(
-              (elem: any) => elem.voting_id.toString() === id
-            );
-            
-            // Combine backend and localStorage data
-            const combinedData = [...response, ...localVotingElements];
-            setVotingData(combinedData);
-          })
-          .catch(error => {
-            // If backend fails, try localStorage only
-            const localElements = JSON.parse(localStorage.getItem('votingElements') || '[]');
-            const localVotingElements = localElements.filter(
-              (elem: any) => elem.voting_id.toString() === id
-            );
-            setVotingData(localVotingElements);
-            console.error(error);
-          });
+        const res = await axios.get(url);
+        const backendData = res.data || [];
+        
+        // Combine backend and localStorage data
+        const combinedData = [...backendData, ...localVotingElements];
+        setVotingData(combinedData);
       } catch (error) {
-        console.error("Error fetching voting list:", error);
+        // If backend fails, use localStorage only
+        console.error("Backend error, using local data:", error);
+        setVotingData(localVotingElements);
       }
     };
 
@@ -108,7 +99,7 @@ function VoteContent() {
         // Make sure we have all IDs
         if (playerIds.length === topPlayers.length) {
           const response = await axios.post(
-            `https://tcbackend.backendboosterbeast.com/current-votes`,
+            `${API_BASE_URL}/current-votes`,
             {
               ranking: playerIds.toString(),
               voting_id: parseInt(id as string)

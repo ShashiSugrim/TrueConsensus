@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/auth';
 
 interface CategoryProps {
     id: number;
@@ -18,21 +19,31 @@ interface RankingItem {
 export default function Category({ id, question, title, color }: CategoryProps) {
     const router = useRouter();
     const [topRankings, setTopRankings] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasNoVotes, setHasNoVotes] = useState(false);
 
     useEffect(() => {
         const fetchRankings = async () => {
             try {
+                setIsLoading(true);
                 // First get the calculated consensus
-                const consensusResponse = await axios.get(`https://tcbackend.backendboosterbeast.com/consensus-vote/${id}`);
-                const consensusRank = consensusResponse.data.formattedConsensus.split(', ').splice(0,5);
-
-                // Then get the items list to map IDs to names
-                const itemsResponse = await axios.get(`https://tcbackend.backendboosterbeast.com/voting-elements/voting_list/${id}`);
-                const itemsMap = new Map(itemsResponse.data.map((item: RankingItem) => [item.id, item.item]));
-
-                setTopRankings(consensusRank);
+                const consensusResponse = await axios.get(`${API_BASE_URL}/consensus-vote/${id}`);
+                const formattedConsensus = consensusResponse.data.formattedConsensus;
+                
+                // Check if there's actual consensus data
+                if (!formattedConsensus || formattedConsensus === "No consensus data available" || formattedConsensus.trim() === '') {
+                    setHasNoVotes(true);
+                    setTopRankings([]);
+                } else {
+                    const consensusRank = formattedConsensus.split(', ').slice(0, 5);
+                    setTopRankings(consensusRank);
+                    setHasNoVotes(false);
+                }
             } catch (error) {
                 console.error('Error fetching rankings:', error);
+                setHasNoVotes(true);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -53,7 +64,14 @@ export default function Category({ id, question, title, color }: CategoryProps) 
             
             {/* Rankings Section */}
             <div className="flex-grow w-full">
-                {topRankings.length > 0 ? (
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white mb-2"></div>
+                            <p className="text-sm text-white/80">Loading Rankings...</p>
+                        </div>
+                    </div>
+                ) : topRankings.length > 0 ? (
                     <div className="space-y-2">
                         {topRankings.map((item, index) => (
                             <div 
@@ -70,8 +88,8 @@ export default function Category({ id, question, title, color }: CategoryProps) 
                 ) : (
                     <div className="flex items-center justify-center h-full">
                         <div className="text-center">
-                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white mb-2"></div>
-                            <p className="text-sm text-white/80">Loading Rankings...</p>
+                            <p className="text-white/80">No votes yet</p>
+                            <p className="text-sm text-white/60 mt-1">Be the first to vote!</p>
                         </div>
                     </div>
                 )}

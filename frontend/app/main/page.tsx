@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import  axios from 'axios';
 import { stripVTControlCharacters } from 'node:util';
 import Category from '../../components/Category';
-import { isAuthenticated } from '../../utils/auth';
+import { isAuthenticated, API_BASE_URL } from '../../utils/auth';
 
 export default function Main() {
     const router = useRouter();
@@ -48,7 +48,7 @@ export default function Main() {
     
       useEffect(() => {
     const getVotingList = async () => {
-      const url = "https://tcbackend.backendboosterbeast.com/voting_list/";
+      const url = `${API_BASE_URL}/voting_list/`;
 
       try {
         let response;
