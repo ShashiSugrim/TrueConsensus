@@ -1,11 +1,8 @@
 "use client";
 import { useState } from 'react';
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../../firebase';
 import Header from '../../components/header';
 import { useRouter } from 'next/navigation';
-import { registerWithBackend } from '../../utils/auth';
-import axios from 'axios';
+import { register, saveAuthData } from '../../utils/auth';
 
 export default function Signup() {
     const router = useRouter();
@@ -14,54 +11,31 @@ export default function Signup() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+        setIsLoading(true);
+        
         try {
-            // Firebase signup
-            const url = 'https://tcbackend.backendboosterbeast.com/users';
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            
-            
-            const idToken = await userCredential.user.getIdToken();
-            
-            localStorage.setItem('firebaseIdToken', idToken);
-            localStorage.setItem('userId', userCredential.user.uid);
-            
-            console.log('ID Token:', idToken);
-            
-            const data = JSON.stringify({
-                first_name: "default",
-                last_name: "default"
+            const authResponse = await register({
+                email,
+                password,
+                first_name: firstName,
+                last_name: lastName,
             });
             
-            const config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: url,
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${idToken}`
-                },
-                data: data
-            };
+            saveAuthData(authResponse);
             
-            await axios.request(config)
-                .then((response) => {
-                    console.log(JSON.stringify(response.data));
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-                
-            console.log('User ID:', userCredential.user.uid);
-
-            //await registerWithBackend(idToken);
-
+            console.log('User ID:', authResponse.user.user_id);
             console.log('User created successfully');
+            
             router.push('/main');
         } catch (error) {
             setError((error as Error).message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -111,9 +85,16 @@ export default function Signup() {
                                 onChange={(e) => setPassword(e.target.value)} 
                                 className="p-2 rounded border bg-white/20 text-white placeholder-white/70" 
                                 required 
+                                minLength={6}
                             />
                         </div>
-                        <button type="submit" className='rounded border p-2 cursor-pointer text-white hover:bg-white/20'>Submit</button>
+                        <button 
+                            type="submit" 
+                            disabled={isLoading}
+                            className='rounded border p-2 cursor-pointer text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed'
+                        >
+                            {isLoading ? 'Creating account...' : 'Submit'}
+                        </button>
                     </form>
                 </div>
             </main>

@@ -11,7 +11,6 @@
   "dependencies": {
     "axios": "^1.8.2",
     "dotenv": "^16.4.7",
-    "firebase": "^11.4.0",
     "motion": "^12.4.10",
     "my-app": "file:",
     "next": "15.2.1",

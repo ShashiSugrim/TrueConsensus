@@ -1,34 +1,33 @@
 "use client";
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../../firebase';
 import Header from '../../components/header';
 import { useRouter } from 'next/navigation';
-import { Router } from 'next/router';
+import { login, saveAuthData } from '../../utils/auth';
+
 export default function Login() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            
-            
-            const idToken = await userCredential.user.getIdToken();
-            
-            localStorage.setItem('firebaseIdToken', idToken);
-            localStorage.setItem('userId', userCredential.user.uid);
-            localStorage.setItem('firebaseToken', idToken)
-            console.log('ID Token:', idToken);
-            console.log('User ID:', userCredential.user.uid);
-    
+        setError('');
+        setIsLoading(true);
         
+        try {
+            const authResponse = await login({ email, password });
+            saveAuthData(authResponse);
+            
+            console.log('User ID:', authResponse.user.user_id);
+            console.log('Login successful');
+    
             router.push('/main');
         } catch (error) {
             setError((error as Error).message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -60,7 +59,13 @@ export default function Login() {
                                 required 
                             />
                         </div>
-                        <button type="submit" className='rounded border p-2 cursor-pointer text-white hover:bg-white/20'>Submit</button>
+                        <button 
+                            type="submit" 
+                            disabled={isLoading}
+                            className='rounded border p-2 cursor-pointer text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed'
+                        >
+                            {isLoading ? 'Logging in...' : 'Submit'}
+                        </button>
                     </form>
                 </div>
             </main>

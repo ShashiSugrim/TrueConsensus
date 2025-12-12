@@ -5,6 +5,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
+interface CreateUserWithCredentials {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  dob?: Date;
+  gender?: string;
+}
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -14,6 +23,11 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.usersRepository.create(createUserDto);
+    return this.usersRepository.save(user);
+  }
+
+  async createUser(userData: CreateUserWithCredentials): Promise<User> {
+    const user = this.usersRepository.create(userData);
     return this.usersRepository.save(user);
   }
 
@@ -30,17 +44,22 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({ where: { user_id: id } });
-    if (!user) {
-      throw new Error(`User with id ${id} not found`);
-    }
     return user;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     await this.usersRepository.update(id, updateUserDto);
-    return this.findOne(id);
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new Error(`User with id ${id} not found`);
+    }
+    return user;
   }
 
   async remove(id: string): Promise<void> {

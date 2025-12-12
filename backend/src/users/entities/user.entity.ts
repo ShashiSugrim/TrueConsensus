@@ -1,9 +1,9 @@
-import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity('users')
 export class User {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   user_id: string;
 
   @Column({ length: 100 })
@@ -18,6 +18,9 @@ export class User {
   @Column({ length: 10, nullable: true })
   gender: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ length: 255, unique: true })
   email: string;
+
+  @Column({ length: 255 })
+  password: string;
 }

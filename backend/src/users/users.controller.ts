@@ -2,22 +2,22 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } fro
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FirebaseAuthGuard } from 'src/auth/firebase-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @UseGuards(FirebaseAuthGuard)
-  create(@Req() req) {
-    return this.usersService.createWithId(req.user.uid);
+  @UseGuards(JwtAuthGuard)
+  create(@Req() req, @Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @UseGuards(FirebaseAuthGuard)
+  @UseGuards(JwtAuthGuard)
   findAll(@Req() req) {
-    console.log("User ID: ", req.user.uid);
+    console.log("User ID: ", req.user.userId);
     return this.usersService.findAll();
   }
 
@@ -27,11 +27,13 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }

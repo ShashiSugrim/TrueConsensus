@@ -96,7 +96,7 @@ function VoteContent() {
   function Push() {
     const pushData = async () => {
       try {
-        let token = localStorage.getItem('firebaseToken');
+        let token = localStorage.getItem('accessToken');
         
         // Convert player names to their IDs
         const playerIds = topPlayers.map(playerName => {

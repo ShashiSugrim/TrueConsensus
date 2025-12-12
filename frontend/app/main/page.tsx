@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import  axios from 'axios';
 import { stripVTControlCharacters } from 'node:util';
 import Category from '../../components/Category';
+import { isAuthenticated } from '../../utils/auth';
 
 export default function Main() {
     const router = useRouter();
@@ -14,9 +15,7 @@ export default function Main() {
 
     // Authentication check
     useEffect(() => {
-        const token = localStorage.getItem('firebaseToken');
-        console.log("main token" + token)
-        if (!token) {
+        if (!isAuthenticated()) {
             router.push('/login');
         }
     }, [router]);

@@ -2,16 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } fro
 import { CurrentVotesService } from './current_votes.service';
 import { CreateCurrentVoteDto } from './dto/create-current_vote.dto';
 import { UpdateCurrentVoteDto } from './dto/update-current_vote.dto';
-import { FirebaseAuthGuard } from 'src/auth/firebase-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('current-votes')
 export class CurrentVotesController {
   constructor(private readonly currentVotesService: CurrentVotesService) {}
 
   @Post()
-  @UseGuards(FirebaseAuthGuard)
+  @UseGuards(JwtAuthGuard)
   create(@Req() req, @Body() createCurrentVoteDto: CreateCurrentVoteDto) {
-    return this.currentVotesService.create(createCurrentVoteDto, req.user.uid);
+    return this.currentVotesService.create(createCurrentVoteDto, req.user.userId);
   }
 
   @Get()
@@ -20,9 +20,9 @@ export class CurrentVotesController {
   }
 
   @Get('userVoted/:votingId')
-  @UseGuards(FirebaseAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async userVoted(@Req() req, @Param('votingId') votingId: number) {
-    return this.currentVotesService.checkUserVoteExists(votingId, req.user.uid);
+    return this.currentVotesService.checkUserVoteExists(votingId, req.user.userId);
   }
 
 
