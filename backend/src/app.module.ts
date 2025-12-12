@@ -18,9 +18,9 @@ import { AlgorithmModule } from './algorithm/algorithm.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5443,
-      username: 'myuser',
-      password: 'mypassword',
+      port: 5432,
+      username: 'postgres',
+      password: 'koltonwerk',
       database: 'trueconsensus',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // Set to false in production

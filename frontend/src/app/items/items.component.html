@@ -1,0 +1,44 @@
+
+<div class="bg-blue-900 bg-opacity-80 border border-blue-700 rounded-xl p-5 shadow-lg flex flex-col gap-2 text-blue-100" draggable="true" (dragstart)="onDragStart($event)">
+  <ng-container *ngIf="!editing; else editMode">
+    <div class="flex items-start justify-between mb-2">
+      <h2 class="text-yellow-300 font-bold text-xl">{{ title }}</h2>
+      <span class="text-xs font-semibold px-2 py-1 rounded bg-blue-700 text-yellow-200">#{{ id }}</span>
+    </div>
+    <!-- ...existing code... -->
+  </ng-container>
+  <ng-template #editMode>
+    <div class="flex flex-col gap-2 w-full mb-2">
+      <label class="text-yellow-300 font-semibold text-sm mb-1">Edit Title:</label>
+      <input [(ngModel)]="editTitle" class="px-3 py-2 rounded-lg border border-blue-400 bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 mb-2" placeholder="Title" />
+      <label class="text-yellow-300 font-semibold text-sm mb-1">Edit Description:</label>
+      <input [(ngModel)]="editDescription" class="px-3 py-2 rounded-lg border border-blue-400 bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-300" placeholder="Description" />
+      <div class="mt-2">
+        Status:
+        <select [(ngModel)]="editStatus" class="px-3 py-2 rounded-lg border border-blue-400 bg-white text-black focus:outline-none focus:ring-2 focus:ring-yellow-300">
+          <option [ngValue]="true">Complete</option>
+          <option [ngValue]="false">Incomplete</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-2 justify-start mt-4">
+      <button class="bg-green-600 text-white font-bold px-3 py-1 rounded-lg shadow hover:bg-green-700 transition" (click)="updateItem()">Save Changes</button>
+      <button class="bg-gray-400 text-black font-bold px-3 py-1 rounded-lg shadow hover:bg-gray-500 transition" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </ng-template>
+  <div>
+    <ng-container *ngIf="!editing; else editBody">
+      <p class="text-blue-200"><span class="font-semibold text-yellow-300">Description:</span> {{ description }}</p>
+      <div class="flex items-end justify-between mt-2">
+        <span [ngClass]="status ? 'bg-green-600 text-white' : 'bg-yellow-400 text-black'" class="text-xs font-semibold px-2 py-1 rounded self-end">{{ status ? 'Complete' : 'Incomplete' }}</span>
+        <div class="flex gap-2 justify-end">
+          <button class="bg-yellow-400 text-black font-bold px-3 py-1 rounded-lg shadow hover:bg-yellow-300 transition" (click)="startEdit()">Update</button>
+          <button class="bg-yellow-400 text-black font-bold px-3 py-1 rounded-lg shadow hover:bg-yellow-300 transition" (click)="deleteItem()">Delete</button>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #editBody>
+      <!-- Editing handled in editMode above, nothing here -->
+    </ng-template>
+  </div>
+</div>
