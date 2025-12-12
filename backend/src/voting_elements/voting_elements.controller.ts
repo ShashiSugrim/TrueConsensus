@@ -12,6 +12,11 @@ export class VotingElementsController {
     return this.votingElementsService.create(createVotingElementDto);
   }
 
+  @Post('batch')
+  createMany(@Body() createVotingElementDtos: CreateVotingElementDto[]) {
+    return this.votingElementsService.createMany(createVotingElementDtos);
+  }
+
   @Get()
   findAll() {
     return this.votingElementsService.findAll();

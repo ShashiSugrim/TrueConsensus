@@ -14,6 +14,7 @@ export class VotingListService {
 
   async create(createVotingListDto: CreateVotingListDto): Promise<VotingList> {
     const votingList = this.votingListRepository.create({
+      voting_id: createVotingListDto.voting_id,
       question: createVotingListDto.question,
       voting_amt: createVotingListDto.voting_amt || 0,
     });

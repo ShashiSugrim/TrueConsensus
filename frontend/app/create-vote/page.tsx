@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/header';
 import axios from 'axios';
+import { API_BASE_URL } from '@/utils/auth';
 
 export default function CreateVote() {
     const router = useRouter();
@@ -46,33 +47,38 @@ export default function CreateVote() {
         e.preventDefault();
         try {
             const newId = Date.now();
+            const filteredOptions = options.filter(opt => opt.trim() !== '');
             
-            // Create the vote group object
+            // Create voting list in the backend
+            await axios.post(`${API_BASE_URL}/voting-list`, {
+                voting_id: String(newId),
+                question: question,
+                voting_amt: 0
+            });
+
+            // Create voting elements in the backend
+            const votingElements = filteredOptions.map((option) => ({
+                voting_id: String(newId),
+                item: option
+            }));
+            
+            await axios.post(`${API_BASE_URL}/voting-elements/batch`, votingElements);
+
+            // Also save to localStorage for UI display
             const newVoteGroup = {
                 id: newId,
-                voting_id: newId, // Add this to match backend format
+                voting_id: newId,
                 question: question,
                 title: title,
                 voting_amt: 0,
-                options: options.filter(opt => opt.trim() !== '')
+                options: filteredOptions
             };
 
-            // Save vote group to localStorage
             const existingGroups = JSON.parse(localStorage.getItem('voteGroups') || '[]');
             existingGroups.push(newVoteGroup);
             localStorage.setItem('voteGroups', JSON.stringify(existingGroups));
 
-            // Save voting elements to localStorage
-            const existingElements = JSON.parse(localStorage.getItem('votingElements') || '[]');
-            const newElements = newVoteGroup.options.map((option, index) => ({
-                id: newId + index,
-                voting_id: newId,
-                item: option
-            }));
-            existingElements.push(...newElements);
-            localStorage.setItem('votingElements', JSON.stringify(existingElements));
-
-            await router.push('/main');
+            router.push('/main');
         } catch (error) {
             console.error('Error creating vote group:', error);
             alert('Failed to create vote group. Please try again.');

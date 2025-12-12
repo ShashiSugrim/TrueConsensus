@@ -48,7 +48,7 @@ export default function Main() {
     
       useEffect(() => {
     const getVotingList = async () => {
-      const url = `${API_BASE_URL}/voting_list/`;
+      const url = `${API_BASE_URL}/voting-list/`;
 
       try {
         let response;
